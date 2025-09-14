@@ -1,0 +1,514 @@
+name: fynsor-website-build
+description: Complete Fynsor consulting website build orchestration
+version: "1.0.0"
+
+metadata:
+  project: Fynsor Consulting Website
+  tech_stack: Next.js, React, TypeScript, Supabase, Vercel
+  estimated_duration: "2-3 weeks"
+  complexity: high
+
+global_config:
+  workspace: "./fynsor-website"
+  output_dir: "./build-artifacts"
+  logs_dir: "./orchestration-logs"
+  parallel_limit: 3
+  timeout: 3600
+
+environment:
+  NODE_VERSION: "18"
+  NEXT_VERSION: "14"
+  TYPESCRIPT: true
+  SUPABASE_ENABLED: true
+  VERCEL_DEPLOYMENT: true
+
+agents:
+  architect:
+    name: ARCHITECT_AGENT
+    type: planning
+    priority: 1
+    description: "Reviews requirements, creates component hierarchy, defines data models, sets security policies"
+    capabilities:
+      - requirements_analysis
+      - system_architecture
+      - component_design
+      - data_modeling
+      - security_planning
+    dependencies: []
+    tasks:
+      - name: analyze_requirements
+        description: "Analyze all project requirements and constraints"
+        inputs:
+          - requirements.md
+          - business_objectives.md
+        outputs:
+          - requirements_analysis.md
+          - constraints_matrix.json
+        estimated_time: "4 hours"
+
+      - name: design_architecture
+        description: "Create comprehensive system architecture"
+        inputs:
+          - requirements_analysis.md
+        outputs:
+          - architecture.md
+          - system_diagram.svg
+          - tech_stack_decisions.md
+        estimated_time: "6 hours"
+
+      - name: create_component_tree
+        description: "Define complete component hierarchy and relationships"
+        inputs:
+          - architecture.md
+        outputs:
+          - component-hierarchy.json
+          - component_specs.md
+          - data_flow_diagram.svg
+        estimated_time: "4 hours"
+
+      - name: define_data_models
+        description: "Create comprehensive data models and schemas"
+        inputs:
+          - component-hierarchy.json
+        outputs:
+          - database_schema.sql
+          - api_specifications.json
+          - type_definitions.ts
+        estimated_time: "3 hours"
+
+  security:
+    name: SECURITY_AGENT
+    type: security
+    priority: 2
+    description: "Implements authentication, encryption, CSP headers, and validates all inputs"
+    capabilities:
+      - authentication_systems
+      - encryption_implementation
+      - security_headers
+      - input_validation
+      - vulnerability_assessment
+    dependencies: [architect]
+    tasks:
+      - name: implement_auth_system
+        description: "Set up complete authentication and authorization system"
+        inputs:
+          - architecture.md
+          - database_schema.sql
+        outputs:
+          - auth/providers.ts
+          - auth/middleware.ts
+          - auth/guards.ts
+          - auth/types.ts
+        estimated_time: "8 hours"
+
+      - name: setup_encryption
+        description: "Implement data encryption and secure storage"
+        inputs:
+          - database_schema.sql
+        outputs:
+          - lib/encryption.ts
+          - lib/secure-storage.ts
+          - crypto/keys.ts
+        estimated_time: "4 hours"
+
+      - name: configure_security_headers
+        description: "Set up CSP, HSTS, and other security headers"
+        inputs:
+          - architecture.md
+        outputs:
+          - middleware/security.ts
+          - next.config.js
+          - security-headers.config.ts
+        estimated_time: "3 hours"
+
+      - name: implement_input_validation
+        description: "Create comprehensive input validation and sanitization"
+        inputs:
+          - api_specifications.json
+        outputs:
+          - lib/validation.ts
+          - schemas/input-schemas.ts
+          - middleware/validation.ts
+        estimated_time: "5 hours"
+
+  ui:
+    name: UI_AGENT
+    type: frontend
+    priority: 3
+    description: "Builds React components, implements Fynsor branding, creates responsive layouts, adds tensor logo animations"
+    capabilities:
+      - react_development
+      - responsive_design
+      - animation_implementation
+      - brand_implementation
+      - accessibility
+    dependencies: [architect]
+    parallel: true
+    tasks:
+      - name: create_layout_system
+        description: "Build responsive layout system and navigation"
+        inputs:
+          - component-hierarchy.json
+          - component_specs.md
+        outputs:
+          - components/layout/*
+          - components/navigation/*
+          - styles/layout.css
+        estimated_time: "6 hours"
+
+      - name: implement_core_pages
+        description: "Create all main pages with Fynsor branding"
+        inputs:
+          - component-hierarchy.json
+        outputs:
+          - app/page.tsx
+          - app/about/page.tsx
+          - app/services/page.tsx
+          - app/contact/page.tsx
+          - app/blog/page.tsx
+        estimated_time: "12 hours"
+
+      - name: build_ui_components
+        description: "Create all reusable UI components"
+        inputs:
+          - component_specs.md
+        outputs:
+          - components/ui/*
+          - components/forms/*
+          - components/cards/*
+          - components/modals/*
+        estimated_time: "10 hours"
+
+      - name: implement_tensor_animations
+        description: "Create tensor logo animations and interactive elements"
+        inputs:
+          - component_specs.md
+        outputs:
+          - components/animations/*
+          - lib/tensor-math.ts
+          - styles/animations.css
+        estimated_time: "8 hours"
+
+      - name: add_responsive_design
+        description: "Ensure all components are fully responsive"
+        inputs:
+          - components/*
+        outputs:
+          - styles/responsive.css
+          - styles/breakpoints.css
+          - styles/mobile-optimizations.css
+        estimated_time: "6 hours"
+
+  backend:
+    name: BACKEND_AGENT
+    type: backend
+    priority: 4
+    description: "Sets up Supabase tables, creates API endpoints, implements business logic, handles data validation"
+    capabilities:
+      - database_management
+      - api_development
+      - business_logic
+      - data_validation
+      - performance_optimization
+    dependencies: [security]
+    tasks:
+      - name: setup_supabase_database
+        description: "Initialize Supabase database with all tables and relationships"
+        inputs:
+          - database_schema.sql
+          - type_definitions.ts
+        outputs:
+          - supabase/migrations/*
+          - supabase/seed.sql
+          - lib/supabase/client.ts
+          - lib/supabase/types.ts
+        estimated_time: "6 hours"
+
+      - name: create_api_endpoints
+        description: "Build all necessary API routes and handlers"
+        inputs:
+          - api_specifications.json
+          - auth/types.ts
+        outputs:
+          - app/api/auth/*
+          - app/api/blog/*
+          - app/api/contact/*
+          - app/api/services/*
+        estimated_time: "10 hours"
+
+      - name: implement_business_logic
+        description: "Create core business logic and data processing"
+        inputs:
+          - api_specifications.json
+        outputs:
+          - lib/business/*
+          - lib/calculations/*
+          - lib/data-processing/*
+        estimated_time: "8 hours"
+
+      - name: setup_data_validation
+        description: "Implement server-side validation and error handling"
+        inputs:
+          - schemas/input-schemas.ts
+        outputs:
+          - lib/server-validation.ts
+          - lib/error-handling.ts
+          - middleware/api-validation.ts
+        estimated_time: "4 hours"
+
+  testing:
+    name: TESTING_AGENT
+    type: quality_assurance
+    priority: 5
+    description: "Writes unit tests, creates E2E tests, security penetration tests, performance benchmarks"
+    capabilities:
+      - unit_testing
+      - integration_testing
+      - e2e_testing
+      - security_testing
+      - performance_testing
+    dependencies: [ui, backend]
+    tasks:
+      - name: write_unit_tests
+        description: "Create comprehensive unit tests for all components and functions"
+        inputs:
+          - components/*
+          - lib/*
+          - app/api/*
+        outputs:
+          - __tests__/components/*
+          - __tests__/lib/*
+          - __tests__/api/*
+          - jest.config.js
+        estimated_time: "12 hours"
+
+      - name: create_e2e_tests
+        description: "Build end-to-end testing suite"
+        inputs:
+          - app/*
+          - components/*
+        outputs:
+          - e2e/*
+          - playwright.config.ts
+          - e2e-scenarios.md
+        estimated_time: "8 hours"
+
+      - name: security_penetration_tests
+        description: "Perform security testing and vulnerability assessment"
+        inputs:
+          - auth/*
+          - middleware/security.ts
+          - app/api/*
+        outputs:
+          - security-tests/*
+          - penetration-report.md
+          - vulnerability-scan.json
+        estimated_time: "6 hours"
+
+      - name: performance_benchmarks
+        description: "Create performance tests and benchmarking"
+        inputs:
+          - app/*
+          - components/*
+        outputs:
+          - performance-tests/*
+          - benchmarks.md
+          - lighthouse-reports/*
+        estimated_time: "4 hours"
+
+  deployment:
+    name: DEPLOYMENT_AGENT
+    type: devops
+    priority: 6
+    description: "Configures Vercel, sets up CI/CD, manages secrets, monitors deployment"
+    capabilities:
+      - vercel_deployment
+      - ci_cd_setup
+      - secrets_management
+      - monitoring_setup
+      - domain_configuration
+    dependencies: [testing]
+    tasks:
+      - name: configure_vercel
+        description: "Set up Vercel deployment configuration"
+        inputs:
+          - next.config.js
+          - package.json
+        outputs:
+          - vercel.json
+          - .env.example
+          - deployment-config.md
+        estimated_time: "3 hours"
+
+      - name: setup_ci_cd_pipeline
+        description: "Create automated CI/CD pipeline"
+        inputs:
+          - __tests__/*
+          - e2e/*
+        outputs:
+          - .github/workflows/*
+          - ci-cd-config.yml
+          - deployment-scripts/*
+        estimated_time: "5 hours"
+
+      - name: manage_secrets_environment
+        description: "Configure environment variables and secrets management"
+        inputs:
+          - auth/*
+          - lib/supabase/*
+        outputs:
+          - env-management.md
+          - secrets-template.json
+          - environment-setup.sh
+        estimated_time: "2 hours"
+
+      - name: deploy_to_production
+        description: "Execute production deployment"
+        inputs:
+          - vercel.json
+          - ci-cd-config.yml
+        outputs:
+          - deployment-log.md
+          - production-urls.md
+          - deployment-verification.json
+        estimated_time: "4 hours"
+
+      - name: setup_monitoring
+        description: "Configure monitoring and alerting systems"
+        inputs:
+          - deployment-log.md
+        outputs:
+          - monitoring-config.ts
+          - alerts-setup.md
+          - dashboard-config.json
+        estimated_time: "3 hours"
+
+execution_plan:
+  phases:
+    - name: "Planning & Architecture"
+      agents: [architect]
+      parallel: false
+      success_criteria:
+        - "Architecture document completed"
+        - "Component hierarchy defined"
+        - "Data models created"
+
+    - name: "Security & Foundation"
+      agents: [security]
+      parallel: false
+      success_criteria:
+        - "Authentication system implemented"
+        - "Security headers configured"
+        - "Input validation in place"
+
+    - name: "Parallel Development"
+      agents: [ui, backend]
+      parallel: true
+      success_criteria:
+        - "All UI components built"
+        - "API endpoints created"
+        - "Database configured"
+        - "Tensor animations implemented"
+
+    - name: "Quality Assurance"
+      agents: [testing]
+      parallel: false
+      success_criteria:
+        - "All tests passing"
+        - "Security scan completed"
+        - "Performance benchmarks met"
+
+    - name: "Deployment"
+      agents: [deployment]
+      parallel: false
+      success_criteria:
+        - "Production deployment successful"
+        - "Domain configured"
+        - "Monitoring active"
+
+quality_gates:
+  - name: "Architecture Review"
+    phase: "Planning & Architecture"
+    criteria:
+      - "Component hierarchy validated"
+      - "Security requirements documented"
+      - "Performance targets defined"
+
+  - name: "Security Audit"
+    phase: "Security & Foundation"
+    criteria:
+      - "Authentication flows tested"
+      - "Security headers verified"
+      - "Encryption implementation validated"
+
+  - name: "Code Quality"
+    phase: "Parallel Development"
+    criteria:
+      - "TypeScript compilation successful"
+      - "ESLint rules passing"
+      - "Component tests written"
+
+  - name: "Testing Gate"
+    phase: "Quality Assurance"
+    criteria:
+      - "Unit test coverage > 80%"
+      - "E2E tests passing"
+      - "Security vulnerabilities resolved"
+      - "Performance scores > 90"
+
+  - name: "Production Ready"
+    phase: "Deployment"
+    criteria:
+      - "Deployment successful"
+      - "SSL certificate active"
+      - "Monitoring alerts configured"
+
+notifications:
+  channels:
+    - type: "slack"
+      webhook: "${SLACK_WEBHOOK_URL}"
+    - type: "email"
+      recipients: ["team@fynsor.com"]
+
+  events:
+    - "phase_start"
+    - "phase_complete"
+    - "quality_gate_failed"
+    - "deployment_complete"
+    - "error_occurred"
+
+rollback_strategy:
+  triggers:
+    - "quality_gate_failure"
+    - "deployment_failure"
+    - "security_vulnerability"
+
+  actions:
+    - "halt_execution"
+    - "notify_team"
+    - "preserve_artifacts"
+    - "generate_failure_report"
+
+artifacts:
+  preserve:
+    - "logs/**"
+    - "test-reports/**"
+    - "security-reports/**"
+    - "performance-reports/**"
+    - "deployment-artifacts/**"
+
+  cleanup_after_days: 30
+  compression: true
+
+success_metrics:
+  technical:
+    - "All quality gates passed"
+    - "Test coverage > 80%"
+    - "Performance score > 90"
+    - "Zero critical security vulnerabilities"
+
+  business:
+    - "Website fully functional"
+    - "All Fynsor branding implemented"
+    - "Tensor animations working"
+    - "Production deployment successful"
