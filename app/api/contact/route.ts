@@ -118,7 +118,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           email: data.email,
           company: data.company || null,
           message: data.message || null,
-          ip_address: ip,
+          ip_address: ip || 'unknown',
           user_agent: request.headers.get('user-agent') || null,
           referrer: request.headers.get('referer') || null,
           created_at: new Date().toISOString(),

@@ -11,7 +11,7 @@ CREATE TABLE contacts (
   email TEXT NOT NULL,
   company TEXT,
   message TEXT,
-  ip_address TEXT NOT NULL,
+  ip_address TEXT,
   user_agent TEXT,
   referrer TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
