@@ -157,7 +157,7 @@ export const analytics = {
   contactForm: {
     start: () => analytics.trackInteraction('contact_form_start', 'contact_form'),
     submit: () => analytics.trackInteraction('contact_form_submit', 'contact_form'),
-    success: () => analytics.trackBusinessMetric('contact_form_conversion', 1),
+    success: () => analytics.trackInteraction('contact_form_success', 'contact_form'),
     error: (error: string) => analytics.trackInteraction('contact_form_error', 'contact_form', { error }),
   },
 

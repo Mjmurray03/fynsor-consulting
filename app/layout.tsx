@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import GoogleAnalytics from '@/components/GoogleAnalytics';
-import AnalyticsProvider from '@/components/AnalyticsProvider';
-import { GA_MEASUREMENT_ID } from '@/lib/gtag';
+// Analytics temporarily disabled for build
+// import GoogleAnalytics from '@/components/GoogleAnalytics';
+// import AnalyticsProvider from '@/components/AnalyticsProvider';
+// import { GA_MEASUREMENT_ID } from '@/lib/gtag';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -23,15 +24,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <head>
-        {/* Google Analytics - Only loads in production */}
-        {GA_MEASUREMENT_ID && (
-          <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
-        )}
+        {/* Google Analytics temporarily disabled for build */}
       </head>
       <body className={`${inter.className} antialiased`}>
-        <AnalyticsProvider>
-          {children}
-        </AnalyticsProvider>
+        {children}
       </body>
     </html>
   );
