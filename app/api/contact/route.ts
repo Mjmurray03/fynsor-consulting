@@ -136,11 +136,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Send email notification to contact@fynsor.io
+    let emailSuccess = false
     try {
       if (resend) {
-        await resend.emails.send({
-          from: 'noreply@fynsor.io', // This needs to be a verified domain
-          to: ['contact@fynsor.io'],
+        console.log('Attempting to send email notification...')
+        const emailResult = await resend.emails.send({
+          from: 'onboarding@resend.dev', // Use Resend's verified domain until fynsor.io is verified
+          to: ['michael.murray@fynsor.io'], // Use your verified email address
           subject: `New Contact Form Submission from ${data.name}`,
           html: `
             <h2>New Contact Form Submission</h2>
@@ -155,6 +157,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             <p><small>Time: ${new Date().toISOString()}</small></p>
           `,
         })
+        console.log('Email sent successfully:', emailResult)
+        emailSuccess = true
+      } else {
+        console.log('Resend not initialized - missing API key')
       }
     } catch (emailError) {
       console.error('Email sending error:', emailError)
@@ -166,7 +172,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       message: 'Contact form submitted successfully. We will get back to you soon.',
       details: {
         databaseStored: databaseSuccess,
-        emailSent: !!resend
+        emailSent: emailSuccess,
+        resendConfigured: !!resend
       }
     })
 
