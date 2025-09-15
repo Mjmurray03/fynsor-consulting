@@ -16,7 +16,8 @@
       "Bash(git branch:*)",
       "Bash(git push:*)",
       "Bash(npm uninstall:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

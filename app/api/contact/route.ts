@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase/client'
+import { Resend } from 'resend'
+
+// Initialize Resend (only if API key is available)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 // Rate limiting storage (simple in-memory for small site)
 const rateLimit = new Map<string, { count: number; resetTime: number }>()
@@ -30,14 +34,6 @@ const contactSchema = z.object({
   message: z
     .string()
     .max(5000, 'Message must be less than 5000 characters')
-    .optional(),
-
-  propertyType: z
-    .enum(['office', 'retail', 'industrial', 'multifamily', 'hospitality', 'mixed_use', 'land', 'other'])
-    .optional(),
-
-  investmentSize: z
-    .enum(['under_1m', '1m_5m', '5m_10m', '10m_25m', '25m_50m', '50m_100m', 'over_100m'])
     .optional(),
 
   // Honeypot field for bot detection
@@ -112,35 +108,66 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const data = validationResult.data
 
-    // Store in Supabase
-    const { error } = await supabaseAdmin
-      .from('contacts')
-      .insert({
-        name_encrypted: data.name,
-        email_encrypted: data.email,
-        company_encrypted: data.company || null,
-        phone_encrypted: data.phone || null,
-        message_encrypted: data.message || null,
-        property_type: data.propertyType || null,
-        investment_size: data.investmentSize || null,
-        ip_address: ip,
-        user_agent: request.headers.get('user-agent') || null,
-        referrer: request.headers.get('referer') || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
+    // Store in Supabase (continue if this fails)
+    let databaseSuccess = false
+    try {
+      const { error } = await supabaseAdmin
+        .from('contacts')
+        .insert({
+          name: data.name,
+          email: data.email,
+          company: data.company || null,
+          message: data.message || null,
+          ip_address: ip,
+          user_agent: request.headers.get('user-agent') || null,
+          referrer: request.headers.get('referer') || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
 
-    if (error) {
-      console.error('Database error:', error)
-      return NextResponse.json(
-        { error: 'Failed to submit form. Please try again.' },
-        { status: 500 }
-      )
+      if (error) {
+        console.error('Database error:', error)
+      } else {
+        databaseSuccess = true
+        console.log('Successfully stored contact in database')
+      }
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError)
+    }
+
+    // Send email notification to contact@fynsor.io
+    try {
+      if (resend) {
+        await resend.emails.send({
+          from: 'noreply@fynsor.io', // This needs to be a verified domain
+          to: ['contact@fynsor.io'],
+          subject: `New Contact Form Submission from ${data.name}`,
+          html: `
+            <h2>New Contact Form Submission</h2>
+            <p><strong>Name:</strong> ${data.name}</p>
+            <p><strong>Email:</strong> ${data.email}</p>
+            <p><strong>Company:</strong> ${data.company || 'Not provided'}</p>
+            <p><strong>Message:</strong></p>
+            <p>${data.message || 'No message provided'}</p>
+            <hr>
+            <p><small>Submitted from: ${request.headers.get('referer') || 'Unknown'}</small></p>
+            <p><small>IP Address: ${ip}</small></p>
+            <p><small>Time: ${new Date().toISOString()}</small></p>
+          `,
+        })
+      }
+    } catch (emailError) {
+      console.error('Email sending error:', emailError)
+      // Don't fail the request if email fails - the form submission was still successful
     }
 
     return NextResponse.json({
       success: true,
       message: 'Contact form submitted successfully. We will get back to you soon.',
+      details: {
+        databaseStored: databaseSuccess,
+        emailSent: !!resend
+      }
     })
 
   } catch (error) {
