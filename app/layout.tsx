@@ -13,7 +13,11 @@ export const metadata: Metadata = {
   description: 'Institutional-grade commercial real estate financial modeling and analysis.',
   keywords: 'commercial real estate, financial modeling, institutional finance, CRE analysis',
   authors: [{ name: 'Fynsor' }],
-  viewport: 'width=device-width, initial-scale=1',
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
