@@ -70,6 +70,13 @@ function getClientIP(request: NextRequest): string {
 // POST endpoint for contact form submission
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    // TEMPORARY DEBUG - Remove after fixing
+    console.log('=== ENVIRONMENT CHECK ===')
+    console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+    console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
+    console.log('SUPABASE_SERVICE_ROLE_KEY length:', process.env.SUPABASE_SERVICE_ROLE_KEY?.length)
+    console.log('========================')
+
     const ip = getClientIP(request)
 
     // Rate limiting check
