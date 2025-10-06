@@ -110,8 +110,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Store in Supabase (continue if this fails)
     let databaseSuccess = false
+    let databaseError = null
     try {
-      const { error } = await supabaseAdmin
+      console.log('Attempting to store contact in Supabase...')
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing')
+      console.log('Service Role Key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Missing')
+
+      const { data: insertData, error } = await supabaseAdmin
         .from('contacts')
         .insert({
           name: data.name,
@@ -124,15 +129,27 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
+        .select()
 
       if (error) {
-        console.error('Database error:', error)
+        console.error('Database insert error:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        })
+        databaseError = error.message
       } else {
         databaseSuccess = true
-        console.log('Successfully stored contact in database')
+        console.log('Successfully stored contact in database:', insertData)
       }
-    } catch (dbError) {
-      console.error('Database connection failed:', dbError)
+    } catch (dbError: any) {
+      console.error('Database connection failed:', {
+        error: dbError,
+        message: dbError?.message,
+        stack: dbError?.stack
+      })
+      databaseError = dbError?.message || 'Unknown database error'
     }
 
     // Send email notification to contact@fynsor.io
@@ -172,6 +189,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       message: 'Contact form submitted successfully. We will get back to you soon.',
       details: {
         databaseStored: databaseSuccess,
+        databaseError: databaseError,
         emailSent: emailSuccess,
         resendConfigured: !!resend
       }
