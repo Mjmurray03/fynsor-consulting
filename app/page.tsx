@@ -2,6 +2,7 @@ import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
 import WhatWeDoSection from '@/components/WhatWeDoSection';
 import WhyFocusedSection from '@/components/WhyFocusedSection';
+import RecentWorkSection from '@/components/RecentWorkSection';
 import MethodSection from '@/components/MethodSection';
 import PhilosophySection from '@/components/PhilosophySection';
 import TechnicalCredibilitySection from '@/components/TechnicalCredibilitySection';
@@ -16,6 +17,7 @@ export default function Home() {
         <HeroSection />
         <WhatWeDoSection />
         <WhyFocusedSection />
+        <RecentWorkSection />
         <MethodSection />
         <PhilosophySection />
         <TechnicalCredibilitySection />
